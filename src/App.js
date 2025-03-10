@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Usuarios from './Usuarios';
 import './App.css';
 
 function App() {
@@ -11,18 +12,13 @@ function App() {
       .catch(error => console.error('Error fetching data:', error));
   }, []);
 
-  return (
-    <div className="App">
-      <h1>Datos desde PostgreSQL</h1>
-      <ul>
-        {data.map(item => (
-          <li key={item.id}>
-            <strong>{item.name}</strong>: {item.description}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  function App() {
+    return (
+      <div className="App">
+        <Usuarios />
+      </div>
+    );
+  }
 }
 
 export default App;
