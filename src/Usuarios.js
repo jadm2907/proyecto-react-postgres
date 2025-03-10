@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './App.css';
 
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -6,12 +7,17 @@ const Usuarios = () => {
   const [email, setEmail] = useState('');
   const [edad, setEdad] = useState('');
   const [editando, setEditando] = useState(null);
+  const [error, setError] = useState('');
 
   // Obtener todos los usuarios
   const fetchUsuarios = async () => {
-    const response = await fetch('/api/usuarios');
-    const data = await response.json();
-    setUsuarios(data);
+    try {
+      const response = await fetch('/api/usuarios');
+      const data = await response.json();
+      setUsuarios(data);
+    } catch (err) {
+      setError('Error al cargar los usuarios');
+    }
   };
 
   useEffect(() => {
@@ -21,33 +27,43 @@ const Usuarios = () => {
   // Crear o actualizar un usuario
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     const usuario = { nombre, email, edad: parseInt(edad) };
 
-    if (editando) {
-      await fetch(`/api/usuarios/${editando}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(usuario),
-      });
-    } else {
-      await fetch('/api/usuarios', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(usuario),
-      });
-    }
+    try {
+      if (editando) {
+        await fetch(`/api/usuarios/${editando}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(usuario),
+        });
+      } else {
+        await fetch('/api/usuarios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(usuario),
+        });
+      }
 
-    setNombre('');
-    setEmail('');
-    setEdad('');
-    setEditando(null);
-    fetchUsuarios();
+      setNombre('');
+      setEmail('');
+      setEdad('');
+      setEditando(null);
+      fetchUsuarios();
+    } catch (err) {
+      setError('Error al guardar el usuario');
+    }
   };
 
   // Eliminar un usuario
   const handleDelete = async (id) => {
-    await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
-    fetchUsuarios();
+    try {
+      await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
+      fetchUsuarios();
+    } catch (err) {
+      setError('Error al eliminar el usuario');
+    }
   };
 
   // Editar un usuario
@@ -59,8 +75,9 @@ const Usuarios = () => {
   };
 
   return (
-    <div>
+    <div className="App">
       <h1>CRUD de Usuarios</h1>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
